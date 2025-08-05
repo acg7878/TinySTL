@@ -1,0 +1,12 @@
+# Build artifacts
+build/
+
+# IDE-specific files
+.vscode/
+
+# MAC
+.DS_Store
+Thumbs.db
+
+study/
+docs
