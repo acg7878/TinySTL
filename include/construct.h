@@ -5,8 +5,21 @@
 #include <utility>
 namespace mystl {
 
-// typename...：模板参数包（Template Parameter Pack）
-// Args参数可以是0个也可以是多个
+//无参数 (默认构造)
+template <typename T>
+void construct(T* ptr) {
+  ::new (static_cast<void*>(ptr)) T();
+} 
+
+// 单参数 (拷贝/移动构造)
+template <typename T, typename Arg>
+void construct(T* ptr, Arg&& arg) {
+  ::new (static_cast<void*>(ptr)) T(std::forward<Arg>(arg));
+}
+
+// 多参数：参数包支持了0或多个参数，其实不需要写无参数或者单参数的construct，只是为了学习捏
+// typename...：模板参数包
+// Args&&... 函数参数包
 template <typename T, typename... Args>
 void construct(T* ptr, Args&&... args) {
   ::new (static_cast<void*>(ptr)) T(std::forward<Args>(args)...);
