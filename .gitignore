@@ -9,4 +9,6 @@ build/
 Thumbs.db
 
 study/
-docs
+docs/
+blog/
+test/
