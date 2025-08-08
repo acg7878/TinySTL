@@ -53,8 +53,8 @@ void destroy(T* ptr) noexcept {
 }
 
 template <typename ForwardIterator>
-void destroy_cat(ForwardIterator first, ForwardIterator last, mystl::true_type) {
-  // 平凡析构类型
+void destroy_cat(ForwardIterator /*first*/, ForwardIterator /*last*/, mystl::true_type) {
+  // 平凡析构类型，无需构析
 }
 
 template <typename ForwardIterator>
