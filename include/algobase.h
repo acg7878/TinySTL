@@ -46,10 +46,10 @@ T* _copy_dispatch(const T* first, const T* last, T* result,
   return _copy_aux(first, last, result, mystl::random_access_iterator_tag{});
 }
 
-// 裸指针重载，利用 is_pod 做类型特征分发
+// 裸指针重载，判断是否为pod做类型特征分发
 template <class T>
 T* copy(const T* first, const T* last, T* result) {
-  return _copy_dispatch(first, last, result, mystl::is_pod<T>{});
+  return _copy_dispatch(first, last, result, mystl::is_trivially_copyable<T>{});
 }
 
 }  // namespace mystl
