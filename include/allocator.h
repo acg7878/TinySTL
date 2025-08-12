@@ -24,15 +24,19 @@ class allocator {
   };
 
  public:
+  // 构造函数
+  allocator() noexcept {}
+  allocator(const allocator&) noexcept {}
+
   // 声明
-  static pointer allocate(size_type n);
+  pointer allocate(size_type n);
   // static void deallocate(pointer p); c++11 不再提供
-  static void deallocate(pointer p, size_type n);
+  void deallocate(pointer p, size_type n);
 
   template <typename... Args>
-  static void construct(pointer p, Args&&... args);
-  static void destroy(pointer p);
-  static void destroy(pointer first, pointer last);
+  void construct(pointer p, Args&&... args);
+  void destroy(pointer p);
+  void destroy(pointer first, pointer last);
 };
 
 template <typename T>
