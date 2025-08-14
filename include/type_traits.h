@@ -13,12 +13,54 @@ struct integral_constant {
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
 
+template <typename T>
+struct is_integral : mystl::false_type {};
+
+template <>
+struct is_integral<bool> : true_type {};
+template <>
+struct is_integral<char> : true_type {};
+template <>
+struct is_integral<signed char> : true_type {};
+template <>
+struct is_integral<unsigned char> : true_type {};
+template <>
+struct is_integral<char16_t> : true_type {};  // C++11新增
+template <>
+struct is_integral<char32_t> : true_type {};  // C++11新增
+template <>
+struct is_integral<wchar_t> : true_type {};
+template <>
+struct is_integral<short> : true_type {};
+template <>
+struct is_integral<int> : true_type {};
+template <>
+struct is_integral<long> : true_type {};
+template <>
+struct is_integral<long long> : true_type {};  // C++11新增
+template <>
+struct is_integral<unsigned short> : true_type {};
+template <>
+struct is_integral<unsigned int> : true_type {};
+template <>
+struct is_integral<unsigned long> : true_type {};
+template <>
+struct is_integral<unsigned long long> : true_type {};
+
 // 默认规则：对于任意两种类型 T 和 U，is_same<T, U> 的结果默认为 false
 template <typename T, typename U>
 struct is_same : public false_type {};
 
 template <typename T>
 struct is_same<T, T> : public true_type {};
+
+template <bool B, typename T = void>
+struct enable_if {};
+
+template <typename T>
+struct enable_if<true, T> {
+  using type = T;
+};
 
 // is_POD 精细度不够，C++20已经弃用，c++11不推荐使用
 template <typename T>
