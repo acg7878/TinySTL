@@ -1,9 +1,9 @@
-#ifndef MY_CONSTRUCT_H_
-#define MY_CONSTRUCT_H_
+#ifndef TINYSTL___MEMORY_CONSTRUCT_H
+#define TINYSTL___MEMORY_CONSTRUCT_H
 
-#include <iterator>      
-#include "type_traits.h" 
-#include <utility>       
+#include <iterator>
+#include <utility>
+#include "../type_traits.h"
 namespace mystl {
 
 //无参数 (默认构造)
@@ -53,12 +53,14 @@ void destroy(T* ptr) noexcept {
 }
 
 template <typename ForwardIterator>
-void destroy_cat(ForwardIterator /*first*/, ForwardIterator /*last*/, mystl::true_type) {
+void destroy_cat(ForwardIterator /*first*/, ForwardIterator /*last*/,
+                 mystl::true_type) {
   // 平凡析构类型，无需构析
 }
 
 template <typename ForwardIterator>
-void destroy_cat(ForwardIterator first, ForwardIterator last, mystl::false_type) {
+void destroy_cat(ForwardIterator first, ForwardIterator last,
+                 mystl::false_type) {
   for (; first != last; ++first) {
     destroy(&*first);
     //*first：解引用迭代器，获得当前元素引用
@@ -72,8 +74,8 @@ void destroy(ForwardIterator first, ForwardIterator last) {
       first, last,
       mystl::is_trivially_destructible<
           typename std::iterator_traits<ForwardIterator>::value_type>{});
-          // value_type：提取出迭代器的类型，如std::vector<T>::iterator、int*
-          // destroy_one不需要是因为已经知道是T类型了
+  // value_type：提取出迭代器的类型，如std::vector<T>::iterator、int*
+  // destroy_one不需要是因为已经知道是T类型了
 }
 
 }  // namespace mystl

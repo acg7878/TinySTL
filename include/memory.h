@@ -1,10 +1,9 @@
-#ifndef MYTINYSTL_MEMORY_H_
-#define MYTINYSTL_MEMORY_H_
+#ifndef TINYSTL_MEMORY_H
+#define TINYSTL_MEMORY_H
 
-#include "algobase.h"
-#include "allocator.h"
-#include "construct.h"
-#include "uninitialized.h"
+#include "__memory/allocator.h"
+#include "__memory/construct.h"
+#include "__memory/uninitialized_algorithms.h"
 
 namespace mystl {}
 

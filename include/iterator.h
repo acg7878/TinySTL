@@ -1,5 +1,5 @@
-#ifndef MY_ITERATOR_H_
-#define MY_ITERATOR_H_
+#ifndef TINYSTL_ITERATOR_H
+#define TINYSTL_ITERATOR_H
 
 #include <cstddef>
 namespace mystl {
@@ -123,7 +123,7 @@ distance_dispatch(BidirectionalIterator first, BidirectionalIterator last,
 template <typename Iterator>
 typename iterator_traits<Iterator>::difference_type distance(Iterator first,
                                                              Iterator last) {
-return distance_dispatch(first, last, iterator_category(first));
+  return distance_dispatch(first, last, iterator_category(first));
 }
 
 // ====== advance 实现 ======

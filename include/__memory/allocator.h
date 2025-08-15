@@ -1,5 +1,5 @@
-#ifndef MYTINYSTL_ALLOCATOR_H_
-#define MYTINYSTL_ALLOCATOR_H_
+#ifndef TINYSTL___MEMORY_ALLOCATOR_H
+#define TINYSTL___MEMORY_ALLOCATOR_H
 
 #include <cstddef>
 #include <new>

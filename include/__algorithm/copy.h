@@ -1,10 +1,10 @@
-#ifndef MYTINYSTL_ALGOBASE_H_
-#define MYTINYSTL_ALGOBASE_H_
+#ifndef TINYSTL_ALGORITHM_COPY_H
+#define TINYSTL_ALGORITHM_COPY_H
 
 #include <cstddef>
 #include <cstring>  // memmove
-#include "iterator.h"
-#include "type_traits.h"
+#include "../iterator.h"
+#include "../type_traits.h"
 
 namespace mystl {
 

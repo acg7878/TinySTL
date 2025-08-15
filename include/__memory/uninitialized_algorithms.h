@@ -1,11 +1,11 @@
-#ifndef MY_UNINITIALIZED_H_
-#define MY_UNINITIALIZED_H_
+#ifndef TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
+#define TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
 
-#include "algobase.h"
-#include "algorithm.h"
+#include "../algorithm.h"
+#include "../iterator.h"
+#include "../type_traits.h"
+#include "algorithm"
 #include "construct.h"
-#include "iterator.h"
-#include "type_traits.h"
 
 namespace mystl {
 // result迭代器要符合 ForwardIterator 要求

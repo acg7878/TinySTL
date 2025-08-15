@@ -1,12 +1,11 @@
-#ifndef MY_VECTOR_H_
-#define MY_VECTOR_H_
+#ifndef TINYSTL_VECTOR_H
+#define TINYSTL_VECTOR_H
 
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
 #include "iterator.h"
 #include "memory.h"
-#include "uninitialized.h"
 
 namespace mystl {
 

@@ -1,5 +1,5 @@
-#ifndef MY_TYPE_TRAITS_IS_SAME_H_
-#define MY_TYPE_TRAITS_IS_SAME_H_
+#ifndef TINYSTL___TYPE_TRAITS_IS_POD_H
+#define TINYSTL___TYPE_TRAITS_IS_POD_H
 
 #include "integral_constant.h"
 
