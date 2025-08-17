@@ -1,6 +1,7 @@
 #ifndef TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
 #define TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
 
+#include <memory>
 #include "../algorithm.h"
 #include "../iterator.h"
 #include "../type_traits.h"
@@ -44,6 +45,34 @@ ForwardIter uninitialized_copy(InputIter first, InputIter last,
                                  is_trivially_copy_constructible<value_type>{});
 }
 
+template <class ForwardIterator, class Size, class T>
+ForwardIterator uninitialized_fill_n_impl(ForwardIterator first, Size n,
+                                          const T& value, mystl::true_type) {
+  return std::fill_n(first, n, value);
+}
+
+template <class ForwardIterator, class Size, class T>
+ForwardIterator uninitialized_fill_n_impl(ForwardIterator first, Size n,
+                                          const T& value, mystl::false_type) {
+  ForwardIterator cur = first;
+  try {
+    for (; n > 0; n--, cur++) {
+      // addressof：安全地获取对象的真实地址
+      mystl::construct(std::addressof(*cur), value);
+    }
+  } catch (...) {
+    mystl::destroy(first, cur);
+    throw;
+  }
+  return cur;
+}
+
+template <class ForwardIterator, class Size, class T>
+ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& value) {
+  using ValueType = typename iterator_traits<ForwardIterator>::value_type;
+  return uninitialized_fill_n_impl(first, n, value,
+                                   mystl::is_trivially_copyable<ValueType>{});
+}
 }  // namespace mystl
 
 #endif  // MYTINYSTL_UNINITIALIZED_H_
