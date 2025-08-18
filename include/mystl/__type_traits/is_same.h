@@ -1,5 +1,5 @@
-#ifndef TINYSTL___TYPE_TRAITS_IS_POD_H
-#define TINYSTL___TYPE_TRAITS_IS_POD_H
+#ifndef TINYSTL___TYPE_TRAITS_IS_SAME_H
+#define TINYSTL___TYPE_TRAITS_IS_SAME_H
 
 #include <mystl/__type_traits/integral_constant.h>
 

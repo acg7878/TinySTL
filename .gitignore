@@ -1,15 +1,17 @@
-# Build
+# Build output
 build/
 
-# IDE
+# IDE configuration
 .vscode/
 
-# MAC
-.DS_Store
-Thumbs.db
+# Dependencies
+gtest/
 
-study/
-docs/
-test/
-src/
-.cache
+# Cache files
+.cache/
+
+# macOS
+.DS_Store
+
+# other
+docs
