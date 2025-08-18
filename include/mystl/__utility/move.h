@@ -1,7 +1,7 @@
-#ifndef TINYSTL___UTILITY_MOVE_H_
-#define TINYSTL___UTILITY_MOVE_H_
+#ifndef TINYSTL___UTILITY_MOVE_H
+#define TINYSTL___UTILITY_MOVE_H
 
-#include "../type_traits.h"
+#include <mystl/__type_traits/remove_reference.h>
 
 namespace mystl {
 

@@ -12,3 +12,4 @@ study/
 docs/
 test/
 src/
+.cache

@@ -3,7 +3,7 @@
 
 #include <iterator>
 #include <utility>
-#include "../type_traits.h"
+#include <mystl/type_traits.h>
 namespace mystl {
 
 //无参数 (默认构造)

@@ -4,8 +4,9 @@
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
-#include "iterator.h"
-#include "memory.h"
+#include <mystl/__memory/uninitialized_algorithms.h>
+#include <mystl/iterator.h>
+#include <mystl/memory.h>
 
 namespace mystl {
 
@@ -34,9 +35,14 @@ class vector {
     _start = allocator.allocate(n);
     _finish = _start;
     _end_of_storage = _start + n;
-    for (size_type i = 0; i < n; ++i) {
-      allocator.construct(_finish, value);
-      ++_finish;
+    try {
+      // 在构造过程中如果抛出异常，会正确销毁已经构造的元素并释放内存
+      mystl::uninitialized_fill_n(_start, n, value);
+      _finish = _start + n;
+    } catch (...) {
+      allocator.deallocate(_start, n);
+      _start = _finish = _end_of_storage = nullptr;
+      throw;  // 重新抛出异常
     }
   }
 
@@ -123,6 +129,45 @@ class vector {
       _finish--;
       allocator.destroy(_finish);
     }
+  }
+
+  void shrink_to_fit() {
+    if (size() < capacity()) {
+      size_type old_size = size();
+      pointer new_start = allocator.allocate(old_size);
+      mystl::uninitialized_copy(_start, _finish, new_start);
+      allocator.destroy(_start,_finish);
+      allocator.deallocate(_start, capacity());
+      _start = new_start;
+      _finish = _start + old_size;
+      _end_of_storage = _start + old_size;
+    }
+  }
+
+  // copy-and-swap 更好
+  vector& operator=(const vector& other) {
+    if (this != &other) {
+      allocator.destroy(_start, _finish);
+      allocator.deallocate(_start, _end_of_storage - _start);
+      size_type n = other.size();
+      _start = allocator.allocate(n);
+      _finish = mystl::uninitialized_copy(other._start, other._finish, _start);
+      _end_of_storage = _start + n;
+    }
+    return *this;
+  }
+
+  vector& operator=(vector&& other) noexcept {
+    if (this != &other) {
+      allocator.destroy(_start, _finish);
+      allocator.deallocate(_start, _end_of_storage - _start);
+      _start = other._start;
+      _finish = other._finish;
+      _end_of_storage = other._end_of_storage;
+      allocator = std::move(other.allocator); // TODO 迁移为mystl的move
+      other._start = other._finish = other._end_of_storage = nullptr;
+    }
+    return *this;
   }
 
  private:

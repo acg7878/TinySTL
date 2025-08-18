@@ -1,7 +1,7 @@
 #ifndef TINYSTL___TYPE_TRAITS_IS_POD_H
 #define TINYSTL___TYPE_TRAITS_IS_POD_H
 
-#include "integral_constant.h"
+#include <mystl/__type_traits/integral_constant.h>
 
 namespace mystl {
 // 默认规则：对于任意两种类型 T 和 U，is_same<T, U> 的结果默认为 false

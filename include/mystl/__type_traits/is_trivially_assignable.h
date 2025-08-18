@@ -1,7 +1,7 @@
 #ifndef TINYSTL___TYPE_TRAITS_IS_TRIVIALLY_ASSIGNABLE_H
 #define TINYSTL___TYPE_TRAITS_IS_TRIVIALLY_ASSIGNABLE_H
 
-#include "integral_constant.h"
+#include <mystl/__type_traits/integral_constant.h>
 
 namespace mystl {
 // 是否具有平凡拷贝赋值

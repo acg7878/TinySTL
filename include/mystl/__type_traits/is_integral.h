@@ -1,7 +1,7 @@
 #ifndef TINYSTL___TYPE_TRAITS_IS_INTEGRAL_H
 #define TINYSTL___TYPE_TRAITS_IS_INTEGRAL_H
 
-#include "integral_constant.h"
+#include <mystl/__type_traits/integral_constant.h>
 
 namespace mystl {
 template <typename T>

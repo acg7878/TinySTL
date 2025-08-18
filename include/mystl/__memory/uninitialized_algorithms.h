@@ -2,11 +2,11 @@
 #define TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
 
 #include <memory>
-#include "../algorithm.h"
-#include "../iterator.h"
-#include "../type_traits.h"
-#include "algorithm"
-#include "construct.h"
+#include <mystl/algorithm.h>
+#include <mystl/iterator.h>
+#include <mystl/type_traits.h>
+#include <algorithm>
+#include <mystl/__memory/construct.h>
 
 namespace mystl {
 // result迭代器要符合 ForwardIterator 要求
