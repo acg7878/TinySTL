@@ -111,13 +111,13 @@ class vector {
       size_type old_capacity = capacity();
       size_type new_capacity = old_capacity == 0 ? 1 : old_capacity * 2;
       pointer new_start = allocator.allocate(new_capacity);
-      mystl::uninitialized_copy(_start, _finish, new_start);
-      for (size_type i = 0; i < old_size; i++) {
-        allocator.destroy(_start + i);
-      }
+      // 优先使用移动，如果不行则拷贝
+      mystl::uninitialized_move(_start, _finish, new_start);
+      // 销毁旧对象并释放旧内存
+      allocator.destroy(_start, _finish);
       allocator.deallocate(_start, old_capacity);
+      _finish = new_start + old_size;
       _start = new_start;
-      _finish = _start + old_size;
       _end_of_storage = _start + new_capacity;
     }
     allocator.construct(_finish, value);
@@ -144,7 +144,7 @@ class vector {
     }
   }
 
-  // copy-and-swap 更好
+  //TODO 换成copy-and-swap 更好
   vector& operator=(const vector& other) {
     if (this != &other) {
       allocator.destroy(_start, _finish);
@@ -164,7 +164,7 @@ class vector {
       _start = other._start;
       _finish = other._finish;
       _end_of_storage = other._end_of_storage;
-      allocator = std::move(other.allocator); // TODO 迁移为mystl的move
+      allocator = mystl::move(other.allocator);
       other._start = other._finish = other._end_of_storage = nullptr;
     }
     return *this;
