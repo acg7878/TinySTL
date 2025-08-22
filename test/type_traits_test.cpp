@@ -3,6 +3,8 @@
 #include <mystl/memory.h>
 #include <mystl/utility.h>
 #include <mystl/vector.h>
+#include <mystl/iterator.h>
+
 // 测试 is_integral
 TEST(TypeTraitsTest, IsIntegral) {
   EXPECT_TRUE(mystl::is_integral<int>::value);

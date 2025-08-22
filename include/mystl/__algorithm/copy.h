@@ -36,6 +36,7 @@ T* _copy_dispatch(const T* first, const T* last, T* result,
     memmove(result, first, n * sizeof(T));
   }
   return result + n;
+  // 返回最后一个拷贝元素的下一个位置
 }
 
 // 非 POD 类型版本，逐个赋值
