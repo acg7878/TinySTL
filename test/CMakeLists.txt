@@ -1,4 +1,11 @@
-file(GLOB TEST_SOURCES "*.cpp")
+set(TEST_SOURCES
+    type_traits_test.cpp
+    utility_test.cpp
+    iterator_test.cpp
+    vector_test.cpp
+    memory_test.cpp
+    algorithm/copy_test.cpp
+)
 
 if(TEST_SOURCES)
     set(TEST_EXECUTABLE_NAME "tinystl_test")
