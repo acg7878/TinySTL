@@ -5,7 +5,7 @@ if(TEST_SOURCES)
     add_executable(${TEST_EXECUTABLE_NAME} ${TEST_SOURCES})
 
     # 链接 TinySTL 头文件库
-    target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE MyTinySTL)
+    target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE TinySTL)
 
     # 链接 gtest 头文件库
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE GTestHeaders)
