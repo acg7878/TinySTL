@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include <mystl/type_traits.h>
+#include <mystl/iterator.h>
 #include <mystl/memory.h>
+#include <mystl/type_traits.h>
 #include <mystl/utility.h>
 #include <mystl/vector.h>
-#include <mystl/iterator.h>
 
 // 测试 is_integral
 TEST(TypeTraitsTest, IsIntegral) {

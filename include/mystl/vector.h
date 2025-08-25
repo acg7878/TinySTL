@@ -1,13 +1,13 @@
 #ifndef TINYSTL_VECTOR_H
 #define TINYSTL_VECTOR_H
 
-#include <cstddef>
-#include <initializer_list>
-#include <mystl/type_traits.h>
 #include <mystl/__memory/uninitialized_algorithms.h>
+#include <mystl/__utility/swap.h>
 #include <mystl/iterator.h>
 #include <mystl/memory.h>
-
+#include <mystl/type_traits.h>
+#include <cstddef>
+#include <initializer_list>
 namespace mystl {
 
 template <class T, class Alloc = mystl::allocator<T>>
@@ -136,7 +136,7 @@ class vector {
       size_type old_size = size();
       pointer new_start = allocator.allocate(old_size);
       mystl::uninitialized_copy(_start, _finish, new_start);
-      allocator.destroy(_start,_finish);
+      allocator.destroy(_start, _finish);
       allocator.deallocate(_start, capacity());
       _start = new_start;
       _finish = _start + old_size;
@@ -144,30 +144,26 @@ class vector {
     }
   }
 
-  //TODO 换成copy-and-swap 更好
+  //利用 RAII，会自动构析销毁原数据
+  // 使用 copy-and-swap 模式
   vector& operator=(const vector& other) {
     if (this != &other) {
-      allocator.destroy(_start, _finish);
-      allocator.deallocate(_start, _end_of_storage - _start);
-      size_type n = other.size();
-      _start = allocator.allocate(n);
-      _finish = mystl::uninitialized_copy(other._start, other._finish, _start);
-      _end_of_storage = _start + n;
+      vector temp(other);
+      swap(other);
     }
     return *this;
   }
 
   vector& operator=(vector&& other) noexcept {
-    if (this != &other) {
-      allocator.destroy(_start, _finish);
-      allocator.deallocate(_start, _end_of_storage - _start);
-      _start = other._start;
-      _finish = other._finish;
-      _end_of_storage = other._end_of_storage;
-      allocator = mystl::move(other.allocator);
-      other._start = other._finish = other._end_of_storage = nullptr;
-    }
+    swap(other);
     return *this;
+  }
+
+  void swap(vector& other) noexcept {
+    mystl::swap(_start, other._start);
+    mystl::swap(_finish, other._finish);
+    mystl::swap(_end_of_storage, other._end_of_storage);
+    mystl::swap(allocator, other.allocator);
   }
 
  private:
