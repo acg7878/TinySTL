@@ -135,7 +135,7 @@ class vector {
     if (size() < capacity()) {
       size_type old_size = size();
       pointer new_start = allocator.allocate(old_size);
-      mystl::uninitialized_copy(_start, _finish, new_start);
+      mystl::uninitialized_move(_start, _finish, new_start);
       allocator.destroy(_start, _finish);
       allocator.deallocate(_start, capacity());
       _start = new_start;
@@ -149,7 +149,7 @@ class vector {
   vector& operator=(const vector& other) {
     if (this != &other) {
       vector temp(other);
-      swap(other);
+      this->swap(temp);
     }
     return *this;
   }
