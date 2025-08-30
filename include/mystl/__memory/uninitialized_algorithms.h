@@ -2,13 +2,13 @@
 #define TINYSTL___MEMORY_UNINITIALIZED_ALGORITHMS_H
 
 #include <mystl/__memory/construct.h>
+#include <mystl/__type_traits/integral_constant.h>
+#include <mystl/__type_traits/is_trivially_copyable.h>
+#include <mystl/__utility/move.h>
 #include <mystl/algorithm.h>
 #include <mystl/iterator.h>
 #include <mystl/type_traits.h>
 #include <algorithm>
-#include "mystl/__type_traits/integral_constant.h"
-#include "mystl/__type_traits/is_trivially_copyable.h"
-#include "mystl/__utility/move.h"
 
 namespace mystl {
 // result迭代器要符合 ForwardIterator 要求
@@ -49,7 +49,7 @@ ForwardIter uninitialized_copy(InputIter first, InputIter last,
 template <class ForwardIterator, class Size, class T>
 ForwardIterator uninitialized_fill_n_impl(ForwardIterator first, Size n,
                                           const T& value, mystl::true_type) {
-  return std::fill_n(first, n, value); // TODO 这里使用了std
+  return std::fill_n(first, n, value);  // TODO 这里使用了std
 }
 
 template <class ForwardIterator, class Size, class T>
