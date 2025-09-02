@@ -1,5 +1,8 @@
 set(TEST_SOURCES
-    type_traits_test.cpp
+    type_traits/is_integral_test.cpp
+    type_traits/is_same_test.cpp
+    type_traits/remove_reference_test.cpp
+    type_traits/is_void_test.cpp
     utility_test.cpp
     iterator_test.cpp
     vector_test.cpp

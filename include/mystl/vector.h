@@ -1,8 +1,8 @@
 #ifndef TINYSTL_VECTOR_H
 #define TINYSTL_VECTOR_H
 
-#include <mystl/__memory/uninitialized_algorithms.h>
-#include <mystl/__utility/swap.h>
+#include <mystl/memory.h>
+#include <mystl/utility.h>
 #include <mystl/iterator.h>
 #include <mystl/memory.h>
 #include <mystl/type_traits.h>
