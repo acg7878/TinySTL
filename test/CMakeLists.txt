@@ -1,13 +1,14 @@
 set(TEST_SOURCES
+    iterator_test.cpp
+    memory_test.cpp
+    utility_test.cpp
+    vector_test.cpp
+    algorithm/copy_test.cpp
+    memory/unique_ptr_test.cpp
     type_traits/is_integral_test.cpp
     type_traits/is_same_test.cpp
-    type_traits/remove_reference_test.cpp
     type_traits/is_void_test.cpp
-    utility_test.cpp
-    iterator_test.cpp
-    vector_test.cpp
-    memory_test.cpp
-    algorithm/copy_test.cpp
+    type_traits/remove_reference_test.cpp
 )
 
 if(TEST_SOURCES)
