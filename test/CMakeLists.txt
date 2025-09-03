@@ -1,5 +1,6 @@
 set(TEST_SOURCES
     iterator_test.cpp
+    list_test.cpp
     memory_test.cpp
     utility_test.cpp
     vector_test.cpp

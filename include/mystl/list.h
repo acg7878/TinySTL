@@ -144,8 +144,27 @@ class list {
 
   iterator begin() { return iterator(head.next); }
   iterator end() { return iterator(&head); }
-  const_iterator begin() const { return const_iterator(head.next); }
-  const_iterator end() const { return const_iterator(&head); }
+
+  // 粗暴写法，不够STL
+  // 应该修改 list_iterator 支持 const 节点指针
+  /*
+    template <class T, class Ref, class Ptr>
+    struct list_iterator {
+    using base_ptr = typename std::conditional<
+        std::is_const<Ref>::value,
+        const list_node_base*,
+        list_node_base*
+    >::type;
+    base_ptr node;
+    };
+  */
+  const_iterator begin() const {
+    return const_iterator(const_cast<list_node_base*>(head.next));
+  }
+  const_iterator end() const {
+    return const_iterator(const_cast<list_node_base*>(&head));
+  }
+
   size_type size() const { return _size; }
   bool empty() const { return _size == 0; }
 };
