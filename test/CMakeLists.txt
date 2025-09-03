@@ -5,6 +5,7 @@ set(TEST_SOURCES
     vector_test.cpp
     algorithm/copy_test.cpp
     memory/unique_ptr_test.cpp
+    memory/shared_ptr_test.cpp
     type_traits/is_integral_test.cpp
     type_traits/is_same_test.cpp
     type_traits/is_void_test.cpp
