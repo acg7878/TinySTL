@@ -23,7 +23,7 @@ error() {
 # --- 主逻辑 ---
 # 确保在项目根目录运行
 if [ ! -d "include" ] || [ ! -f "CMakeLists.txt" ]; then
-    error "请在 MyTinySTL 项目的根目录下运行此脚本。"
+    error "请在根目录下运行此脚本。"
 fi
 
 # 检查目标目录是否已存在
