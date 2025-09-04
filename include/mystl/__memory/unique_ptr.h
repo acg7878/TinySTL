@@ -76,6 +76,7 @@ struct unique_ptr {
   }
 };
 
+// 数组版本
 // 默认参数只能出现在主模板，特化模板不能写默认参数
 template <typename T>
 class unique_ptr<T[], default_delete<T[]>> {

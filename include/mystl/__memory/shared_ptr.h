@@ -54,7 +54,7 @@ struct control_block_base {
 // 控制块
 template <typename T, typename Deleter>
 struct control_block : control_block_base {
-  T* ptr;
+  T* ptr; // 提供给删除器，与shared_ptr的不同，那个是提供给用户的
   Deleter deleter;
   control_block(T* p, Deleter d) : ptr(p), deleter(mystl::move(d)) {}
   void destroy_object() noexcept override {
@@ -141,8 +141,10 @@ class shared_ptr {
   }
 
   T* get() const noexcept { return ptr_; }
-  T& operator*() noexcept { return *ptr_; }  // &：避免拷贝
+  T& operator*() noexcept { return *ptr_; }
+  const T& operator*() const noexcept { return *ptr_; }
   T* operator->() noexcept { return ptr_; }
+  const T* operator->() const noexcept { return ptr_; }
 
   long use_count() const noexcept {
     return ctrl_ ? ctrl_->shared_owners.load(std::memory_order_acquire) : 0;
@@ -209,7 +211,7 @@ class weak_ptr {
     if (this != &other) {
       release();
       ptr_ = other.ptr_;
-      ctrl_ = other.ptr_;
+      ctrl_ = other.ctrl_;
       if (ctrl_)
         ctrl_->add_weak();
     }
