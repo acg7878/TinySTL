@@ -112,6 +112,7 @@ class shared_ptr {
   // 拷贝赋值
   shared_ptr& operator=(const shared_ptr& other) noexcept {
     if (this != &other) {
+      release(); // 记得释放！因为有赋值，原来的应该release掉！
       ptr_ = other.ptr_;
       ctrl_ = other.ctrl_;
       if (ctrl_) {
