@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 #include <mystl/__functional/function.h>
 
+int add(int a,int b) {
+  return a+b;
+}
+
 TEST(FunctionTest, Basic) {
   mystl::function<int(int, int)> f = [](int a, int b) { return a + b; };
   ASSERT_EQ(f(1, 2), 3);
@@ -28,4 +32,9 @@ TEST(FunctionTest, Null) {
 TEST(FunctionTest, Throw) {
   mystl::function<int(int, int)> f;
   ASSERT_THROW(f(1, 2), std::bad_function_call);
+}
+
+TEST(FunctionTest, Function) {
+  mystl::function<int(int, int)> f = add;
+  ASSERT_EQ(f(1, 2), 3);
 }

@@ -5,6 +5,7 @@ set(TEST_SOURCES
     utility_test.cpp
     vector_test.cpp
     algorithm/copy_test.cpp
+    functional/function_test.cpp
     memory/unique_ptr_test.cpp
     memory/shared_ptr_test.cpp
     type_traits/is_integral_test.cpp
