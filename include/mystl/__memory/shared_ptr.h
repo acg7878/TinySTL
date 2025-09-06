@@ -2,12 +2,51 @@
 #define TINYSTL___MEMOEY_SHARED_PTR_H
 
 #include <mystl/__utility/move.h>
+#include <mystl/__utility/swap.h>
 #include <atomic>
 #include <cstddef>
+#include <iostream>
 #include <memory>
-#include "mystl/__utility/swap.h"
 
 namespace mystl {
+
+template <typename T>
+class shared_ptr;
+template <typename T>
+class weak_ptr;
+
+template <typename T>
+class enable_shared_from_this {
+ protected:
+  constexpr enable_shared_from_this() noexcept = default;
+  enable_shared_from_this(const enable_shared_from_this&) noexcept = default;
+  enable_shared_from_this& operator=(const enable_shared_from_this&) noexcept =
+      default;
+  ~enable_shared_from_this() = default;
+
+ public:
+  shared_ptr<T> shared_from_this() {
+    shared_ptr<T> tmp = weak_this_.lock();
+    if (!tmp) {
+      throw std::bad_weak_ptr();  // 未被shared_ptr管理时抛异常
+    }
+    return tmp;
+  }
+
+  shared_ptr<const T> shared_from_this() const {
+    shared_ptr<const T> tmp = weak_this_.lock();
+    if (!tmp) {
+      throw std::bad_weak_ptr();
+    }
+    return tmp;
+  }
+
+ private:
+  template <typename U>
+  friend class shared_ptr;
+
+  mutable weak_ptr<T> weak_this_;
+};
 
 // 控制块基类
 struct control_block_base {
@@ -54,7 +93,7 @@ struct control_block_base {
 // 控制块
 template <typename T, typename Deleter>
 struct control_block : control_block_base {
-  T* ptr; // 提供给删除器，与shared_ptr的不同，那个是提供给用户的
+  T* ptr;  // 提供给删除器，与shared_ptr的不同，那个是提供给用户的
   Deleter deleter;
   control_block(T* p, Deleter d) : ptr(p), deleter(mystl::move(d)) {}
   void destroy_object() noexcept override {
@@ -89,6 +128,8 @@ class shared_ptr {
       // 还创建一个隐式弱引用，为什么是隐式呢因为没创建weak_ptr
       // 这个隐式弱引用用于关联强引用和弱引用的生命周期，确保 强引用归零释放资源后
       // 控制块不会立即被删除，因为还有隐式弱引用，直到所有 weak_ptr 也释放（弱引用计数归零），控制块才会被删除。
+      enable_weak_this<T,T>(p, p);
+      std::cout << "shared_ptr constructed" << std::endl;
     }
   }
 
@@ -112,7 +153,7 @@ class shared_ptr {
   // 拷贝赋值
   shared_ptr& operator=(const shared_ptr& other) noexcept {
     if (this != &other) {
-      release(); // 记得释放！因为有赋值，原来的应该release掉！
+      release();  // 记得释放！因为有赋值，原来的应该release掉！
       ptr_ = other.ptr_;
       ctrl_ = other.ctrl_;
       if (ctrl_) {
@@ -178,7 +219,29 @@ class shared_ptr {
     ptr_ = nullptr;
     ctrl_ = nullptr;
   }
+
+  template <class Yp, class OrigPtr,
+            typename = std::enable_if_t<std::is_convertible<
+                OrigPtr*, enable_shared_from_this<Yp>*>::value>>
+  void enable_weak_this(enable_shared_from_this<Yp>* e, OrigPtr* ptr) noexcept {
+    typedef typename std::remove_cv<Yp>::type _RawYp;
+    if (e && e->weak_this_.expired()) {
+      e->weak_this_ = shared_ptr<_RawYp>(*this, static_cast<_RawYp*>(ptr));
+    }
+    std::cout << "enable_weak_this called" << std::endl;
+  }
+
+  template <class Yp, class OrigPtr>
+  void enable_weak_this(Yp* e, OrigPtr* ptr) noexcept {
+    std::cout << "no work!!!!!" << std::endl;
+  }
 };
+
+template <class _Tp>
+inline bool operator==(const shared_ptr<_Tp>& __x,
+                       const shared_ptr<_Tp>& __y) noexcept {
+  return __x.get() == __y.get();
+}
 
 template <typename T>
 class weak_ptr {
