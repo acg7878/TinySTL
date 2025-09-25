@@ -127,7 +127,7 @@ class shared_ptr {
       // 还创建一个隐式弱引用，为什么是隐式呢因为没创建weak_ptr
       // 这个隐式弱引用用于关联强引用和弱引用的生命周期，确保 强引用归零释放资源后
       // 控制块不会立即被删除，因为还有隐式弱引用，直到所有 weak_ptr 也释放（弱引用计数归零），控制块才会被删除。
-      enable_weak_this<T, T>(p, p);
+      enable_weak_this(p);
     }
   }
 
@@ -218,19 +218,14 @@ class shared_ptr {
     ctrl_ = nullptr;
   }
 
-  // TODO：有问题无法匹配
-  template <class Yp, class OrigPtr,
-            typename = std::enable_if_t<std::is_convertible<
-                OrigPtr*, enable_shared_from_this<Yp>*>::value>>
-  void enable_weak_this(enable_shared_from_this<Yp>* e, OrigPtr* ptr) noexcept {
-    typedef typename std::remove_cv<Yp>::type _RawYp;
-    if (e && e->weak_this_.expired()) {
-      e->weak_this_ = shared_ptr<_RawYp>(*this, static_cast<_RawYp*>(ptr));
+  template <class Y>
+  void enable_weak_this(Y* p) noexcept {
+    if constexpr (std::is_base_of_v<enable_shared_from_this<Y>, Y>) {
+      if (p && p->weak_this_.expired()) {
+        p->weak_this_ = shared_ptr<Y>(*this);
+      }
     }
   }
-
-  template <class Yp, class OrigPtr>
-  void enable_weak_this(Yp* e, OrigPtr* ptr) noexcept {}
 };
 
 template <class _Tp>
