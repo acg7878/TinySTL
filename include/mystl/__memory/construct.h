@@ -52,28 +52,20 @@ void destroy(T* ptr) noexcept {
   destroy_one(ptr, mystl::is_trivially_destructible<T>{});
 }
 
-template <typename ForwardIterator>
-void destroy_cat(ForwardIterator /*first*/, ForwardIterator /*last*/,
-                 mystl::true_type) {
-  // 平凡析构类型，无需构析
-}
-
-template <typename ForwardIterator>
-void destroy_cat(ForwardIterator first, ForwardIterator last,
-                 mystl::false_type) {
-  for (; first != last; ++first) {
-    destroy(&*first);
-    //*first：解引用迭代器，获得当前元素引用
-    //&*first：取地址，获得元素指针
-  }
-}
 
 template <typename ForwardIterator>
 void destroy(ForwardIterator first, ForwardIterator last) {
-  destroy_cat(
-      first, last,
-      mystl::is_trivially_destructible<
-          typename std::iterator_traits<ForwardIterator>::value_type>{});
+  using value_type = typename std::iterator_traits<ForwardIterator>::value_type;
+  using is_trivial = mystl::is_trivially_destructible<value_type>;
+  
+  if constexpr (is_trivial::value) {
+    // 平凡析构类型，无需析构
+  } else {
+    // 非平凡析构类型，需要析构
+    for (; first != last; ++first) {
+      destroy(&*first);
+    }
+  }
   // value_type：提取出迭代器的类型，如std::vector<T>::iterator、int*
   // destroy_one不需要是因为已经知道是T类型了
 }

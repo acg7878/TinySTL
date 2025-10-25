@@ -1,7 +1,6 @@
 #ifndef TINYSTL_ITERATOR_TRAITS_H
 #define TINYSTL_ITERATOR_TRAITS_H
 
-#include <__config>
 #include <cstddef>
 
 namespace mystl {

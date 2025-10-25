@@ -1,7 +1,6 @@
 #ifndef TINYSTL___FUNCTIONAL_FUNCTION_H
 #define TINYSTL___FUNCTIONAL_FUNCTION_H
 
-#include <__functional/invoke.h>
 #include <cassert>
 #include <exception>
 #include <type_traits>

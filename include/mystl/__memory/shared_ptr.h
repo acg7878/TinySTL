@@ -112,7 +112,7 @@ class shared_ptr {
   using element_type = T;
 
   constexpr shared_ptr() : ptr_(nullptr), ctrl_(nullptr) {}
-  constexpr shared_ptr(nullptr_t) noexcept : shared_ptr() {}  // 委托构造
+  constexpr shared_ptr(std::nullptr_t) noexcept : shared_ptr() {}  // 委托构造
 
   template <typename Deleter = std::default_delete<T>>
   explicit shared_ptr(T* p, Deleter d = Deleter())
