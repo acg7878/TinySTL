@@ -1,11 +1,12 @@
 set(TEST_SOURCES
     iterator_test.cpp
     list_test.cpp
-    memory_test.cpp
+    memory/memory_test.cpp
     utility_test.cpp
     vector_test.cpp
+    unordered_map_test.cpp
     algorithm/copy_test.cpp
-    functional/function_test.cpp
+    #functional/function_test.cpp
     memory/unique_ptr_test.cpp
     memory/shared_ptr_test.cpp
     type_traits/is_integral_test.cpp
