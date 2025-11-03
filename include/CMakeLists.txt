@@ -20,5 +20,6 @@ target_include_directories(GTestHeaders INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/gtest/include
 )
 
+set(gtest_force_shared_crt ON)  # 强制 gtest 使用共享 (DLL) 运行时库
 add_subdirectory(gtest)
 # gtest 库会生成 gtest 和 gtest_main targets
