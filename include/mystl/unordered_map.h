@@ -1,8 +1,8 @@
 #ifndef TINYSTL_UNORDERED_MAP_H_
 #define TINYSTL_UNORDERED_MAP_H_
 
-// 引入标准库的 __hash_table（LLVM libc++ 路径，其他编译器可能需调整路径，如 GCC 可能为 <bits/hash_table.h>）
-#include <__hash_table>
+// 引入我们自己的 __hash_table 实现
+#include <mystl/__hash_table.h>
 // 引入必要的辅助头文件（键值对、哈希函数、相等性比较、分配器等）
 #include <utility>      // for pair, move, forward
 #include <tuple>        // for piecewise_construct, forward_as_tuple
@@ -222,8 +222,8 @@ private:
     // （4）重新绑定分配器：将 value_type 的分配器，绑定为 __hash_node_value 的分配器
     using __node_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<__hash_node_value>;
 
-    // （5）底层标准库 __hash_table 的类型（模板参数顺序参考 LLVM libc++）
-    using __base_hash_table = std::__hash_table<
+    // （5）底层哈希表的类型（使用我们自己的 __hash_table 实现）
+    using __base_hash_table = mystl::__hash_table<
         __hash_node_value,        // 哈希表存储的节点值类型
         __hasher_adapter,         // 哈希函数适配器
         __key_equal_adapter,      // 键相等性比较适配器
