@@ -30,9 +30,8 @@ class hash_table;
 // 辅助函数：计算下一个质数（简化版本）
 // ============================================================================
 inline size_t next_prime(size_t n) {
-  static const size_t small_primes[] = {2,  3,  5,  7,  11, 13, 17,
-                                          19, 23, 29, 31, 37, 41, 43,
-                                          47, 53, 59, 61, 67, 71};
+  static const size_t small_primes[] = {2,  3,  5,  7,  11, 13, 17, 19, 23, 29,
+                                        31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
 
   // 小质数直接查找
   for (size_t prime : small_primes) {
@@ -64,7 +63,7 @@ inline bool is_hash_power2(size_t n) {
 }
 
 // ============================================================================
-// 辅助函数：将哈希值约束到桶索引
+// 辅助函数：将哈希值映射到桶索引
 // ============================================================================
 inline size_t constrain_hash(size_t h, size_t bc) {
   // 如果桶数是 2 的幂，使用位运算（更快）
@@ -109,9 +108,11 @@ struct hash_node_base {
   explicit hash_node_base(next_pointer next) noexcept : next_(next) {}
 
   next_pointer ptr() noexcept {
+    // 获取一个指向当前 hash_node_base 对象的、类型为 next_pointer 的指针
     return std::pointer_traits<node_base_pointer>::pointer_to(*this);
   }
 
+  // upcast()：将 node_base_pointer 转换为 _NodePtr
   _NodePtr upcast() noexcept {
     return std::pointer_traits<_NodePtr>::pointer_to(
         static_cast<node_type&>(*this));
@@ -126,17 +127,18 @@ struct hash_node_base {
 // 完整节点类
 // ============================================================================
 template <class _Tp, class _VoidPtr>
-struct hash_node
-    : public hash_node_base<typename std::pointer_traits<
-          _VoidPtr>::template rebind<hash_node<_Tp, _VoidPtr>>> {
+struct hash_node : public hash_node_base<typename std::pointer_traits<
+                       _VoidPtr>::template rebind<hash_node<_Tp, _VoidPtr>>> {
   using node_value_type = _Tp;
   using _Base = hash_node_base<typename std::pointer_traits<
       _VoidPtr>::template rebind<hash_node<_Tp, _VoidPtr>>>;
   using next_pointer = typename _Base::next_pointer;
 
+  // hash_：存储哈希值
   size_t hash_;
 
  private:
+  // value_：存储节点值
   union {
     _Tp value_;
   };
@@ -152,7 +154,7 @@ struct hash_node
 };
 
 // ============================================================================
-// 类型萃取：区分 set 和 map
+// ：区分 set 和 map
 // ============================================================================
 template <class _Tp>
 struct hash_key_value_types {
@@ -172,15 +174,16 @@ struct hash_key_value_types {
 // ============================================================================
 template <class _NodePtr>
 struct hash_node_types {
-  using difference_type = ptrdiff_t;
-  using size_type = size_t;
-  using node_type = typename std::pointer_traits<_NodePtr>::element_type;
-  using node_pointer = _NodePtr;
-  using node_base_type = hash_node_base<node_pointer>;
-  using node_base_pointer =
-      typename std::pointer_traits<_NodePtr>::template rebind<node_base_type>;
-  using next_pointer = typename node_base_type::next_pointer;
-  using node_value_type = typename node_type::node_value_type;
+  using difference_type = ptrdiff_t;  // 差值类型
+  using size_type = size_t;           // 大小类型
+  using node_type =
+      typename std::pointer_traits<_NodePtr>::element_type;  // 节点类型
+  using node_pointer = _NodePtr;                             // 节点指针
+  using node_base_type = hash_node_base<node_pointer>;       // 节点基类
+  using node_base_pointer = typename std::pointer_traits<
+      _NodePtr>::template rebind<node_base_type>;              // 节点基类指针
+  using next_pointer = typename node_base_type::next_pointer;  // 下一个节点指针
+  using node_value_type = typename node_type::node_value_type;  // 节点值类型
 };
 
 // ============================================================================
@@ -269,11 +272,9 @@ class hash_const_iterator {
 
   hash_const_iterator() noexcept : node_(nullptr) {}
 
-  hash_const_iterator(const non_const_iterator& x) noexcept
-      : node_(x.node_) {}
+  hash_const_iterator(const non_const_iterator& x) noexcept : node_(x.node_) {}
 
-  explicit hash_const_iterator(next_pointer node) noexcept
-      : node_(node) {}
+  explicit hash_const_iterator(next_pointer node) noexcept : node_(node) {}
 
   reference operator*() const { return node_->upcast()->get_value(); }
 
@@ -329,7 +330,7 @@ class hash_local_iterator {
   hash_local_iterator() noexcept : node_(nullptr) {}
 
   explicit hash_local_iterator(next_pointer node, size_t bucket,
-                                 size_t bucket_count) noexcept
+                               size_t bucket_count) noexcept
       : node_(node), bucket_(bucket), bucket_count_(bucket_count) {
     if (node_ != nullptr) {
       node_ = node_->next_;
@@ -393,12 +394,9 @@ class hash_const_local_iterator {
 
   hash_const_local_iterator() noexcept : node_(nullptr) {}
 
-  explicit hash_const_local_iterator(next_pointer node_ptr,
-                                       size_t bucket,
-                                       size_t bucket_count) noexcept
-      : node_(node_ptr),
-        bucket_(bucket),
-        bucket_count_(bucket_count) {
+  explicit hash_const_local_iterator(next_pointer node_ptr, size_t bucket,
+                                     size_t bucket_count) noexcept
+      : node_(node_ptr), bucket_(bucket), bucket_count_(bucket_count) {
     if (node_ != nullptr) {
       node_ = node_->next_;
     }
@@ -486,7 +484,7 @@ class hash_node_destructor {
   bool value_constructed;
 
   explicit hash_node_destructor(allocator_type& na,
-                                  bool constructed = false) noexcept
+                                bool constructed = false) noexcept
       : na_(na), value_constructed(constructed) {}
 
   void operator()(pointer p) noexcept {
@@ -524,8 +522,7 @@ class hash_table {
   using next_pointer = typename node_base_type::next_pointer;
 
   // 节点分配器
-  using node_allocator =
-      typename alloc_traits::template rebind_alloc<node>;
+  using node_allocator = typename alloc_traits::template rebind_alloc<node>;
   using node_traits = std::allocator_traits<node_allocator>;
   using node_base_allocator =
       typename node_traits::template rebind_alloc<node_base_type>;
@@ -536,8 +533,7 @@ class hash_table {
       typename node_traits::template rebind_alloc<next_pointer>;
   using pointer_alloc_traits = std::allocator_traits<pointer_allocator>;
   using bucket_list_deleter = bucket_list_deallocator<pointer_allocator>;
-  using bucket_list =
-      std::unique_ptr<next_pointer[], bucket_list_deleter>;
+  using bucket_list = std::unique_ptr<next_pointer[], bucket_list_deleter>;
   using node_pointer_pointer = typename pointer_alloc_traits::pointer;
 
   // 删除器类型
@@ -545,17 +541,17 @@ class hash_table {
   using node_holder = std::unique_ptr<node, _Dp>;
 
   // 成员变量
-  bucket_list bucket_list_;
-  node_base_type first_node_;
-  node_allocator node_alloc_;
-  size_t size_;
-  hasher hasher_;
-  float max_load_factor_;
-  key_equal key_eq_;
-
-  size_t& size() noexcept { return size_; }
+  bucket_list bucket_list_;    //桶数组
+  node_base_type first_node_;  // 第一个节点
+  node_allocator node_alloc_;  // 节点分配器
+  size_t size_;                // 元素个数
+  hasher hasher_;              // 哈希函数
+  float max_load_factor_;      // 最大负载因子
+  key_equal key_eq_;           // 键相等性比较
 
  public:
+  size_t& size() noexcept { return size_; }
+
   using size_type = typename alloc_traits::size_type;
   using difference_type = typename alloc_traits::difference_type;
   using reference = value_type&;
@@ -588,8 +584,7 @@ class hash_table {
         key_eq_(eql) {}
 
   hash_table(const hasher& hf, const key_equal& eql, const allocator_type& a)
-      : bucket_list_(nullptr,
-                       bucket_list_deleter(pointer_allocator(a), 0)),
+      : bucket_list_(nullptr, bucket_list_deleter(pointer_allocator(a), 0)),
         node_alloc_(a),
         size_(0),
         hasher_(hf),
@@ -597,22 +592,20 @@ class hash_table {
         key_eq_(eql) {}
 
   explicit hash_table(const allocator_type& a)
-      : bucket_list_(nullptr,
-                       bucket_list_deleter(pointer_allocator(a), 0)),
+      : bucket_list_(nullptr, bucket_list_deleter(pointer_allocator(a), 0)),
         node_alloc_(a),
         size_(0),
         max_load_factor_(1.0f) {}
 
   // 拷贝构造
   hash_table(const hash_table& other)
-      : bucket_list_(
-            nullptr,
-            bucket_list_deleter(
-                pointer_allocator(
-                    std::allocator_traits<pointer_allocator>::
-                        select_on_container_copy_construction(
-                            other.bucket_list_.get_deleter().alloc())),
-                0)),
+      : bucket_list_(nullptr,
+                     bucket_list_deleter(
+                         pointer_allocator(
+                             std::allocator_traits<pointer_allocator>::
+                                 select_on_container_copy_construction(
+                                     other.bucket_list_.get_deleter().alloc())),
+                         0)),
         node_alloc_(
             std::allocator_traits<node_allocator>::
                 select_on_container_copy_construction(other.node_alloc())),
@@ -636,8 +629,8 @@ class hash_table {
         max_load_factor_(other.max_load_factor_),
         key_eq_(std::move(other.key_eq_)) {
     if (size() > 0) {
-      bucket_list_[constrain_hash(first_node_.next_->hash(),
-                                      bucket_count())] = first_node_.ptr();
+      bucket_list_[constrain_hash(first_node_.next_->hash(), bucket_count())] =
+          first_node_.ptr();
     }
     other.first_node_.next_ = nullptr;
     other.size_ = 0;
@@ -655,8 +648,8 @@ class hash_table {
       max_load_factor() = other.max_load_factor();
 
       // 拷贝分配器（如果需要）
-      if (std::allocator_traits<node_allocator>::
-              propagate_on_container_copy_assignment::value) {
+      if (std::allocator_traits<
+              node_allocator>::propagate_on_container_copy_assignment::value) {
         node_alloc() = other.node_alloc();
       }
 
@@ -680,15 +673,14 @@ class hash_table {
       max_load_factor_ = other.max_load_factor_;
       key_eq_ = std::move(other.key_eq_);
 
-      if (std::allocator_traits<node_allocator>::
-              propagate_on_container_move_assignment::value) {
+      if (std::allocator_traits<
+              node_allocator>::propagate_on_container_move_assignment::value) {
         node_alloc() = std::move(other.node_alloc());
       }
 
       if (size() > 0) {
         bucket_list_[constrain_hash(first_node_.next_->hash(),
-                                        bucket_count())] =
-            first_node_.ptr();
+                                    bucket_count())] = first_node_.ptr();
       }
 
       other.first_node_.next_ = nullptr;
@@ -714,9 +706,7 @@ class hash_table {
   const key_equal& key_eq() const noexcept { return key_eq_; }
 
   node_allocator& node_alloc() noexcept { return node_alloc_; }
-  const node_allocator& node_alloc() const noexcept {
-    return node_alloc_;
-  }
+  const node_allocator& node_alloc() const noexcept { return node_alloc_; }
 
   size_type max_size() const noexcept {
     return std::min<size_type>(node_traits::max_size(node_alloc()),
@@ -770,11 +760,10 @@ class hash_table {
       next_pointer nd = bucket_list_[chash];
       if (nd != nullptr) {
         for (nd = nd->next_;
-             nd != nullptr && (nd->hash() == hash ||
-                               constrain_hash(nd->hash(), bc) == chash);
+             nd != nullptr &&
+             (nd->hash() == hash || constrain_hash(nd->hash(), bc) == chash);
              nd = nd->next_) {
-          if (nd->hash() == hash &&
-              key_eq()(nd->upcast()->get_value(), k)) {
+          if (nd->hash() == hash && key_eq()(nd->upcast()->get_value(), k)) {
             return iterator(nd);
           }
         }
@@ -792,11 +781,10 @@ class hash_table {
       next_pointer nd = bucket_list_[chash];
       if (nd != nullptr) {
         for (nd = nd->next_;
-             nd != nullptr && (hash == nd->hash() ||
-                               constrain_hash(nd->hash(), bc) == chash);
+             nd != nullptr &&
+             (hash == nd->hash() || constrain_hash(nd->hash(), bc) == chash);
              nd = nd->next_) {
-          if (nd->hash() == hash &&
-              key_eq()(nd->upcast()->get_value(), k)) {
+          if (nd->hash() == hash && key_eq()(nd->upcast()->get_value(), k)) {
             return const_iterator(nd);
           }
         }
@@ -820,8 +808,7 @@ class hash_table {
     next_pointer np = bucket_list_[n];
     size_type r = 0;
     if (np != nullptr) {
-      for (np = np->next_;
-           np != nullptr && constrain_hash(np->hash(), bc) == n;
+      for (np = np->next_; np != nullptr && constrain_hash(np->hash(), bc) == n;
            np = np->next_, ++r)
         ;
     }
@@ -888,13 +875,12 @@ class hash_table {
 
     // 更新桶索引
     if (size() > 0) {
-      bucket_list_[constrain_hash(first_node_.next_->hash(),
-                                      bucket_count())] = first_node_.ptr();
+      bucket_list_[constrain_hash(first_node_.next_->hash(), bucket_count())] =
+          first_node_.ptr();
     }
     if (u.size() > 0) {
       u.bucket_list_[constrain_hash(u.first_node_.next_->hash(),
-                                        u.bucket_count())] =
-          u.first_node_.ptr();
+                                    u.bucket_count())] = u.first_node_.ptr();
     }
   }
 
@@ -923,8 +909,7 @@ class hash_table {
       ;
 
     // 更新桶索引
-    if (pn == first_node_.ptr() ||
-        constrain_hash(pn->hash(), bc) != chash) {
+    if (pn == first_node_.ptr() || constrain_hash(pn->hash(), bc) != chash) {
       if (cn->next_ == nullptr ||
           constrain_hash(cn->next_->hash(), bc) != chash) {
         bucket_list_[chash] = nullptr;
@@ -956,8 +941,7 @@ class hash_table {
     new (std::addressof(*h.get())) node(nullptr, 0);
 
     // 构造值类型
-    node_traits::construct(na, &h->get_value(),
-                             std::forward<Args>(args)...);
+    node_traits::construct(na, &h->get_value(), std::forward<Args>(args)...);
     h.get_deleter().value_constructed = true;
 
     // 计算并缓存哈希值
@@ -967,14 +951,13 @@ class hash_table {
   }
 
   template <class _First, class... _Rest>
-  node_holder construct_node_hash(size_t hash, _First&& f,
-                                      _Rest&&... rest) {
+  node_holder construct_node_hash(size_t hash, _First&& f, _Rest&&... rest) {
     node_allocator& na = node_alloc();
     node_holder h(node_traits::allocate(na, 1), _Dp(na));
 
     new (std::addressof(*h.get())) node(nullptr, hash);
     node_traits::construct(na, &h->get_value(), std::forward<_First>(f),
-                             std::forward<_Rest>(rest)...);
+                           std::forward<_Rest>(rest)...);
     h.get_deleter().value_constructed = true;
 
     return h;
@@ -987,14 +970,18 @@ class hash_table {
     if (bc != 0) {
       size_t chash = constrain_hash(hash, bc);
       next_pointer ndptr = bucket_list_[chash];
+
+      // ndptr != nullptr：链表走完了
+      // ndptr->hash() == hash：完整哈希等于hash，无需再执行constrain_hash，已经能确定ndptr是当前桶
+      // constrain_hash(ndptr->hash(), bc) == chash ： 是我们要找的桶
       if (ndptr != nullptr) {
         for (ndptr = ndptr->next_;
-             ndptr != nullptr &&
-             (ndptr->hash() == hash ||
-              constrain_hash(ndptr->hash(), bc) == chash);
+             ndptr != nullptr && (ndptr->hash() == hash ||
+                                  constrain_hash(ndptr->hash(), bc) == chash);
              ndptr = ndptr->next_) {
           if (ndptr->hash() == hash &&
               key_eq()(ndptr->upcast()->get_value(), value)) {
+            // 哈希比较 + 等价比较
             return ndptr;
           }
         }
@@ -1019,13 +1006,12 @@ class hash_table {
 
     next_pointer pn = bucket_list_[chash];
     if (pn == nullptr) {
-      pn = first_node_.ptr();
-      nd->next_ = pn->next_;
-      pn->next_ = nd->ptr();
-      bucket_list_[chash] = pn;
+      pn = first_node_.ptr();    // 设置pn指向头哨兵节点
+      nd->next_ = pn->next_;     // 将新节点插入到头哨兵节点的下一个位置
+      pn->next_ = nd->ptr();     // 哨兵节点的下一个指向新节点
+      bucket_list_[chash] = pn;  // 将桶的头部指向哨兵节点
       if (nd->next_ != nullptr) {
-        bucket_list_[constrain_hash(nd->next_->hash(), bc)] =
-            nd->ptr();
+        bucket_list_[constrain_hash(nd->next_->hash(), bc)] = nd->ptr();
       }
     } else {
       nd->next_ = pn->next_;
@@ -1041,6 +1027,7 @@ class hash_table {
         node_insert_unique_prepare(nd->hash_, nd->get_value());
 
     bool inserted = false;
+    // 没找到相同键的节点，执行插入
     if (existing_node == nullptr) {
       node_insert_unique_perform(nd);
       existing_node = nd->ptr();
@@ -1066,6 +1053,7 @@ class hash_table {
     }
   }
 
+  // do_rehash_unique：重新映射桶数组
   void do_rehash_unique(size_type nbc) {
     pointer_allocator& npa = bucket_list_.get_deleter().alloc();
 
@@ -1148,7 +1136,7 @@ class hash_table {
 
   template <class _Key, class... Args>
   std::pair<iterator, bool> emplace_unique_key_args(const _Key& k,
-                                                      Args&&... args) {
+                                                    Args&&... args) {
     size_t hash = hash_function()(k);
     size_type bc = bucket_count();
     bool inserted = false;
@@ -1160,11 +1148,10 @@ class hash_table {
       nd = bucket_list_[chash];
       if (nd != nullptr) {
         for (nd = nd->next_;
-             nd != nullptr && (nd->hash() == hash ||
-                               constrain_hash(nd->hash(), bc) == chash);
+             nd != nullptr &&
+             (nd->hash() == hash || constrain_hash(nd->hash(), bc) == chash);
              nd = nd->next_) {
-          if (nd->hash() == hash &&
-              key_eq()(nd->upcast()->get_value(), k)) {
+          if (nd->hash() == hash && key_eq()(nd->upcast()->get_value(), k)) {
             goto done;
           }
         }
@@ -1172,8 +1159,7 @@ class hash_table {
     }
 
     {
-      node_holder h =
-          construct_node_hash(hash, std::forward<Args>(args)...);
+      node_holder h = construct_node_hash(hash, std::forward<Args>(args)...);
       if (size() + 1 > bc * max_load_factor() || bc == 0) {
         rehash_unique(std::max<size_type>(
             2 * bc + !is_hash_power2(bc),
@@ -1190,8 +1176,7 @@ class hash_table {
         pn->next_ = h.get()->ptr();
         bucket_list_[chash] = pn;
         if (h->next_ != nullptr) {
-          bucket_list_[constrain_hash(h->next_->hash(), bc)] =
-              h.get()->ptr();
+          bucket_list_[constrain_hash(h->next_->hash(), bc)] = h.get()->ptr();
         }
       } else {
         h->next_ = pn->next_;

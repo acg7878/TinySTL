@@ -1,0 +1,2 @@
+add_executable(hashtable_examples hashtable_examples.cpp)
+target_link_libraries(hashtable_examples PRIVATE TinySTL)
