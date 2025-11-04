@@ -1,4 +1,4 @@
-#ifndef TINYSTL_HASH_TABLE_H_
+﻿#ifndef TINYSTL_HASH_TABLE_H_
 #define TINYSTL_HASH_TABLE_H_
 
 #include <algorithm>  // for max, min
@@ -1119,7 +1119,7 @@ class hash_table {
     node_holder h = construct_node(std::move(x));
     std::pair<iterator, bool> r = node_insert_unique(h.get());
     if (r.second) {
-      h.release();
+      h.release(); // unique_str的release
     }
     return r;
   }

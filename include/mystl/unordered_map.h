@@ -1,8 +1,6 @@
-#ifndef TINYSTL_UNORDERED_MAP_H_
+﻿#ifndef TINYSTL_UNORDERED_MAP_H_
 #define TINYSTL_UNORDERED_MAP_H_
 
-// 引入我们自己的 hash_table 实现
-#include "__hash_table.h"
 #include <cstddef>           // for size_t, ptrdiff_t
 #include <functional>        // for hash, equal_to
 #include <initializer_list>  // for initializer_list
@@ -11,6 +9,7 @@
 #include <stdexcept>         // for out_of_range
 #include <type_traits>       // for remove_reference_t, declval
 #include <utility>           // for pair, move, forward
+#include "__hash_table.h"
 
 namespace mystl {
 
@@ -167,7 +166,7 @@ class unordered_map {
 
     // 显式声明拷贝和移动构造函数（因为定义了赋值操作符）
     hash_node_value(const hash_node_value& other) : data_(other.data_) {}
-    hash_node_value(hash_node_value&& other)
+    hash_node_value(hash_node_value&& other) noexcept
         : data_(std::move(other.data_)) {}
 
     // 支持 emplace：可变参数构造函数，用于直接构造 pair
@@ -189,7 +188,7 @@ class unordered_map {
       return *this;
     }
 
-    hash_node_value& operator=(hash_node_value&& other) {
+    hash_node_value& operator=(hash_node_value&& other) noexcept {
       const_cast<key_type&>(data_.first) =
           std::move(const_cast<key_type&>(other.data_.first));
       data_.second = std::move(other.data_.second);
@@ -212,10 +211,10 @@ class unordered_map {
   // （5）底层哈希表的类型（使用我们自己的 hash_table 实现）
   using base_hash_table =
       mystl::hash_table<hash_node_value,    // 哈希表存储的节点值类型
-                          hasher_adapter,     // 哈希函数适配器
-                          key_equal_adapter,  // 键相等性比较适配器
-                          node_allocator      // 节点分配器
-                          >;
+                        hasher_adapter,     // 哈希函数适配器
+                        key_equal_adapter,  // 键相等性比较适配器
+                        node_allocator      // 节点分配器
+                        >;
 
   // 底层哈希表实例（核心依赖）
   base_hash_table table_;
@@ -230,8 +229,8 @@ class unordered_map {
   // 桶内迭代器（遍历单个桶的元素）
   using local_iterator =
       hash_map_iterator<typename base_hash_table::local_iterator>;
-  using const_local_iterator = hash_map_const_iterator<
-      typename base_hash_table::const_local_iterator>;
+  using const_local_iterator =
+      hash_map_const_iterator<typename base_hash_table::const_local_iterator>;
 
   // -------------------------- 构造函数（覆盖标准核心接口）--------------------------
   // （1）默认构造
@@ -312,7 +311,7 @@ class unordered_map {
 
   // （3）初始化列表赋值
   unordered_map& operator=(std::initializer_list<value_type> il) {
-    table_.clear();              // 先清空
+    table_.clear();                // 先清空
     insert(il.begin(), il.end());  // 再插入新元素
     return *this;
   }
@@ -421,15 +420,13 @@ class unordered_map {
 
   // （3）按迭代器范围删除
   iterator erase(iterator first, iterator last) {
-    auto base_it =
-        table_.erase(first.get_iterator(), last.get_iterator());
+    auto base_it = table_.erase(first.get_iterator(), last.get_iterator());
     return iterator(base_it);
   }
 
   // 支持 const_iterator 版本的范围删除
   iterator erase(const_iterator first, const_iterator last) {
-    auto base_it =
-        table_.erase(first.get_iterator(), last.get_iterator());
+    auto base_it = table_.erase(first.get_iterator(), last.get_iterator());
     return iterator(base_it);
   }
 
@@ -446,9 +443,7 @@ class unordered_map {
   const_iterator cbegin() const noexcept {
     return const_iterator(table_.begin());
   }
-  const_iterator cend() const noexcept {
-    return const_iterator(table_.end());
-  }
+  const_iterator cend() const noexcept { return const_iterator(table_.end()); }
 
   // -------------------------- 桶相关接口（覆盖标准核心接口）--------------------------
   // （1）获取当前桶数
@@ -461,9 +456,7 @@ class unordered_map {
   size_type bucket_size(size_type n) const { return table_.bucket_size(n); }
 
   // （4）桶内迭代器（遍历单个桶）
-  local_iterator begin(size_type n) {
-    return local_iterator(table_.begin(n));
-  }
+  local_iterator begin(size_type n) { return local_iterator(table_.begin(n)); }
   local_iterator end(size_type n) { return local_iterator(table_.end(n)); }
   const_local_iterator begin(size_type n) const {
     return const_local_iterator(table_.cbegin(n));
@@ -525,8 +518,7 @@ class unordered_map_hasher {
 
  public:
   // 构造函数（默认、拷贝）
-  unordered_map_hasher() noexcept(
-      std::is_nothrow_default_constructible_v<Hash>)
+  unordered_map_hasher() noexcept(std::is_nothrow_default_constructible_v<Hash>)
       : hash_() {}
 
   unordered_map_hasher(const Hash& hf) noexcept(
@@ -534,9 +526,7 @@ class unordered_map_hasher {
       : hash_(hf) {}
 
   // 核心：计算 hash_node_value 的哈希值（提取 Key 后调用 hash_）
-  size_t operator()(const ValueType& val) const {
-    return hash_(val.get_key());
-  }
+  size_t operator()(const ValueType& val) const { return hash_(val.get_key()); }
 
   // 核心：计算 Key 的哈希值（供 hash_table 查找时使用）
   size_t operator()(const Key& key) const { return hash_(key); }

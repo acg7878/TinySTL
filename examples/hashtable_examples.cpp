@@ -1,4 +1,4 @@
-#include <functional>
+﻿#include <functional>
 #include <iostream>
 #include <string>
 
@@ -42,59 +42,61 @@ struct MyPairEqual {
   }
 };
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 int main() {
-  std::cout << "--- HashTable Usage Example (Corrected) ---" << std::endl;
+#ifdef _WIN32
+  // 在 Windows 平台上，设置控制台输出编码为 UTF-8
+  SetConsoleOutputCP(CP_UTF8);
+#endif
+
+  std::cout << "--- 哈希表使用示例 ---" << std::endl;
 
   // 定义哈希表类型别名，方便使用
   using MyTable = mystl::hash_table<MyPair, MyPairHash, MyPairEqual,
                                     std::allocator<MyPair>>;
 
-  // 4. 正确的初始化步骤
-  // a. 使用接受 hasher 和 key_equal 的构造函数创建一个空表
   MyTable ht{MyPairHash(), MyPairEqual()};
-
-  // b. 手动调用 rehash_unique 来设置初始桶数
   ht.rehash_unique(10);
-  std::cout << "HashTable created. Initial bucket count: " << ht.bucket_count()
-            << std::endl;
+  std::cout << "哈希表已创建。初始桶数量: " << ht.bucket_count() << std::endl;
 
-  std::cout << "\n1. Inserting elements..." << std::endl;
-  ht.insert_unique({1, "apple"});
-  ht.insert_unique({2, "banana"});
-  ht.insert_unique({10, "orange"});
-  ht.insert_unique({15, "grape"});
+  std::cout << "\n1. 插入元素..." << std::endl;
+  ht.insert_unique({1, "苹果"});
+  ht.insert_unique({2, "香蕉"});
+  ht.insert_unique({10, "橙子"});
+  ht.insert_unique({15, "葡萄"});
 
-  auto result = ht.insert_unique({2, "cherry"});
+  auto result = ht.insert_unique({2, "樱桃"});
   if (!result.second) {
-    std::cout << "Insertion failed for key 2: Key already exists." << std::endl;
+    std::cout << "{2, \"樱桃\"} 插入失败：键已存在。" << std::endl;
   }
-  std::cout << "Current size: " << ht.size() << std::endl;
+  std::cout << "当前大小: " << ht.size() << std::endl;
 
-  std::cout << "\n2. Finding elements (with integer key)..." << std::endl;
+  std::cout << "\n2. 查找元素 (使用整数键)..." << std::endl;
   auto it = ht.find(10); // 现在可以直接用 int 查找
   if (it != ht.end()) {
-    std::cout << "Found key 10 with value: " << it->value << std::endl;
+    std::cout << "找到键 10，值为: " << it->value << std::endl;
   }
 
   auto it_missing = ht.find(99);
   if (it_missing == ht.end()) {
-    std::cout << "Key 99 not found, as expected." << std::endl;
+    std::cout << "键 99 未找到，符合预期。" << std::endl;
   }
 
-  std::cout << "\n3. Erasing elements (with integer key)..." << std::endl;
+  std::cout << "\n3. 删除元素 (使用整数键)..." << std::endl;
   size_t erased_count = ht.erase_unique(2); // 现在可以直接用 int 删除
   if (erased_count > 0) {
-    std::cout << "Erased key 2. Number of elements erased: " << erased_count
-              << std::endl;
+    std::cout << "已删除键 2。删除的元素数量: " << erased_count << std::endl;
   }
-  std::cout << "Current size: " << ht.size() << std::endl;
+  std::cout << "当前大小: " << ht.size() << std::endl;
 
-  std::cout << "\n4. Iterating through remaining elements..." << std::endl;
+  std::cout << "\n4. 遍历剩余元素..." << std::endl;
   for (const auto &elem : ht) {
-    std::cout << "  - Key: " << elem.key << ", Value: " << elem.value
-              << std::endl;
+    std::cout << "  - 键: " << elem.key << ", 值: " << elem.value << std::endl;
   }
 
-  std::cout << "\n--- Example Finished ---" << std::endl;
+  std::cout << "\n--- 示例结束 ---" << std::endl;
   return 0;
 }
