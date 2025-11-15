@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <exception>
+#include <functional>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
