@@ -68,3 +68,45 @@ TEST(UtilityTest, swap) {
   EXPECT_EQ(v1, (std::vector<int>{4, 5, 6}));
   EXPECT_EQ(v2, (std::vector<int>{1, 2, 3}));
 }
+
+namespace {
+// 用于测试完美转发的辅助函数和变量
+std::string g_value_category;
+
+void forwarded_function(int &) { g_value_category = "lvalue"; }
+void forwarded_function(const int &) {
+  g_value_category = "const lvalue";
+}
+void forwarded_function(int &&) { g_value_category = "rvalue"; }
+void forwarded_function(const int &&) {
+  g_value_category = "const rvalue";
+}
+
+template <typename T> void forwarder(T &&arg) {
+  forwarded_function(mystl::forward<T>(arg));
+}
+} // namespace
+
+TEST(UtilityTest, forward) {
+  // 测试左值
+  g_value_category.clear();
+  int x = 42;
+  forwarder(x);
+  EXPECT_EQ(g_value_category, "lvalue");
+
+  // 测试 const 左值
+  g_value_category.clear();
+  const int cx = 100;
+  forwarder(cx);
+  EXPECT_EQ(g_value_category, "const lvalue");
+
+  // 测试右值
+  g_value_category.clear();
+  forwarder(10);
+  EXPECT_EQ(g_value_category, "rvalue");
+
+  // 测试 const 右值
+  g_value_category.clear();
+  forwarder(mystl::move(cx));
+  EXPECT_EQ(g_value_category, "const rvalue");
+}
