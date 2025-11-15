@@ -100,13 +100,22 @@ TEST(UtilityTest, forward) {
   forwarder(cx);
   EXPECT_EQ(g_value_category, "const lvalue");
 
-  // 测试右值
+  // 测试右值 （通过包装函数，触发重载1）
   g_value_category.clear();
   forwarder(10);
   EXPECT_EQ(g_value_category, "rvalue");
 
-  // 测试 const 右值
+  // 测试 const 右值（通过包装函数，触发重载1）
   g_value_category.clear();
   forwarder(mystl::move(cx));
+  EXPECT_EQ(g_value_category, "const rvalue");
+
+
+  g_value_category.clear();
+  forwarded_function(mystl::forward<int>(10));
+  EXPECT_EQ(g_value_category, "rvalue");
+
+  g_value_category.clear();
+  forwarded_function(mystl::forward<const int>(mystl::move(cx)));
   EXPECT_EQ(g_value_category, "const rvalue");
 }
