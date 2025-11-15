@@ -6,6 +6,7 @@
 #include <mystl/__memory/shared_ptr.h>
 #include <mystl/__memory/uninitialized_algorithms.h>
 #include <mystl/__memory/unique_ptr.h>
+#include <mystl/__memory/split_buffer.h>
 namespace mystl {}
 
 #endif
