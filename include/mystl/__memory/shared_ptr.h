@@ -1,4 +1,4 @@
-#ifndef TINYSTL___MEMOEY_SHARED_PTR_H
+﻿#ifndef TINYSTL___MEMOEY_SHARED_PTR_H
 #define TINYSTL___MEMOEY_SHARED_PTR_H
 
 #include <mystl/__utility/move.h>
@@ -199,6 +199,7 @@ class shared_ptr {
   friend class weak_ptr;
 
   // shared_ptr<T> 与 shared_ptr<U> 相互查看private成员
+  // 父类子类相互查看
   template <typename U>
   friend class shared_ptr;
 
@@ -254,7 +255,7 @@ class weak_ptr {
   }
 
   // 移动构造
-  weak_ptr(weak_ptr&& other) : ptr_(other.ptr_), ctrl_(other.ctrl_) {
+  weak_ptr(weak_ptr&& other)  noexcept : ptr_(other.ptr_), ctrl_(other.ctrl_) {
     other.ctrl_ = nullptr;
     other.ptr_ = nullptr;
   }
@@ -276,7 +277,7 @@ class weak_ptr {
   // 重置为空，与一个空的weak_ptr进行交换，然后这个临时的weak_ptr会在语句结束会自动构析
   void reset() noexcept { weak_ptr().swap(*this); }
 
-  void swap(weak_ptr& other) {
+  void swap(weak_ptr& other)  noexcept {
     mystl::swap(this->ptr_, other.ptr_);
     mystl::swap(this->ctrl_, other.ctrl_);
   }
