@@ -5,6 +5,7 @@ set(TEST_SOURCES
     memory/split_buffer_test.cpp
     utility_test.cpp
     vector_test.cpp
+    deque_test.cpp
     unordered_map_test.cpp
     algorithm/copy_test.cpp
     #functional/function_test.cpp
