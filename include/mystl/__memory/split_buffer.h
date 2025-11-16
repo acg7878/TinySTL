@@ -4,11 +4,15 @@
 #include <mystl/__utility/move.h>
 #include <mystl/__utility/forward.h>
 #include <mystl/__iterator/distance.h>
+#include <mystl/__iterator/iterator_traits.h>
 #include <mystl/__type_traits/remove_reference.h>
 #include <mystl/__type_traits/integral_constant.h>
+#include <mystl/__type_traits/enable_if.h>
+#include <mystl/__type_traits/is_integral.h>
 #include <memory>
 #include <algorithm>  // 使用 std::move, std::move_backward
 #include <cstddef>
+#include <iterator>  // 用于 std::iterator_traits
 
 namespace mystl {
 
@@ -99,7 +103,9 @@ struct split_buffer {
   // 构造相关
   void construct_at_end(size_type n);
   void construct_at_end(size_type n, const_reference x);
-  template <class ForwardIterator>
+  template <class ForwardIterator,
+            typename = typename enable_if<
+                !is_integral<ForwardIterator>::value>::type>
   void construct_at_end(ForwardIterator first, ForwardIterator last);
   template <class Iterator, class Sentinel>
   void construct_at_end_with_sentinel(Iterator first, Sentinel last);
@@ -158,11 +164,11 @@ split_buffer<Tp, Allocator>::~split_buffer() {
 // 移动构造
 template <class Tp, class Allocator>
 split_buffer<Tp, Allocator>::split_buffer(split_buffer&& c) noexcept
-    : first_(move(c.first_)),
-      begin_(move(c.begin_)),
-      end_(move(c.end_)),
-      cap_(move(c.cap_)),
-      alloc_(move(c.alloc_)) {
+    : first_(mystl::move(c.first_)),
+      begin_(mystl::move(c.begin_)),
+      end_(mystl::move(c.end_)),
+      cap_(mystl::move(c.cap_)),
+      alloc_(mystl::move(c.alloc_)) {
   c.first_ = nullptr;
   c.begin_ = nullptr;
   c.end_ = nullptr;
@@ -200,7 +206,7 @@ split_buffer<Tp, Allocator>& split_buffer<Tp, Allocator>::operator=(split_buffer
   begin_ = c.begin_;
   end_ = c.end_;
   cap_ = c.cap_;
-  alloc_ = move(c.alloc_);
+  alloc_ = mystl::move(c.alloc_);
   c.first_ = c.begin_ = c.end_ = c.cap_ = nullptr;
   return *this;
 }
@@ -257,9 +263,10 @@ void split_buffer<Tp, Allocator>::construct_at_end_with_size(Iterator first, siz
 }
 
 template <class Tp, class Allocator>
-template <class ForwardIterator>
+template <class ForwardIterator, typename>
 void split_buffer<Tp, Allocator>::construct_at_end(ForwardIterator first, ForwardIterator last) {
-  construct_at_end_with_size(first, distance(first, last));
+  // 使用 std::distance 以兼容标准库迭代器（如 std::move_iterator, std::__wrap_iter）
+  construct_at_end_with_size(first, std::distance(first, last));
 }
 
 template <class Tp, class Allocator>
@@ -272,7 +279,7 @@ void split_buffer<Tp, Allocator>::construct_at_end_with_sentinel(Iterator first,
       size_type new_cap = std::max<size_type>(2 * old_cap, 8);
       split_buffer buf(new_cap, 0, a);
       for (pointer p = begin_; p != end_; ++p, ++buf.end_) {
-        alloc_traits::construct(alloc_, buf.end_, move(*p));
+        alloc_traits::construct(alloc_, buf.end_, mystl::move(*p));
       }
       swap(buf);
     }

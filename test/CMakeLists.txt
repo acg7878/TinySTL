@@ -2,6 +2,7 @@ set(TEST_SOURCES
     iterator_test.cpp
     list_test.cpp
     memory/memory_test.cpp
+    memory/split_buffer_test.cpp
     utility_test.cpp
     vector_test.cpp
     unordered_map_test.cpp
