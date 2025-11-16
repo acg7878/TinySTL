@@ -1,4 +1,4 @@
-#ifndef TINYSTL_DEQUE_H
+﻿#ifndef TINYSTL_DEQUE_H
 #define TINYSTL_DEQUE_H
 
 #include <mystl/__memory/split_buffer.h>
@@ -249,6 +249,8 @@ class deque {
 
   size_type recommend_blocks(size_type n) {
     return n / block_size + (n % block_size != 0);
+    // n / block_size：可以填满多少个块
+    // n % block_size：填满后还剩的话说明还需要多一个块来装
   }
 
   void add_front_capacity();
@@ -594,6 +596,8 @@ typename deque<Tp, Allocator>::reference deque<Tp, Allocator>::at(size_type i) {
     throw std::out_of_range("deque");
   size_type p = start_ + i;
   return *(*(map_.begin() + p / block_size) + p % block_size);
+  // p / block_size：确定块号
+  // p % block_size：块内偏移值
 }
 
 template <class Tp, class Allocator>
@@ -753,11 +757,11 @@ template <class Tp, class Allocator>
 void deque<Tp, Allocator>::add_front_capacity(size_type n) {
   allocator_type& a = alloc();
   size_type nb = recommend_blocks(n + map_.empty());
-  // Number of unused blocks at back:
+  // 计算后端未使用的块数：
   size_type back_capacity = back_spare() / block_size;
-  back_capacity = std::min(back_capacity, nb);  // don't take more than you need
-  nb -= back_capacity;  // number of blocks need to allocate
-  // If nb == 0, then we have sufficient capacity.
+  back_capacity = std::min(back_capacity, nb);  // 不要拿取超过所需的块
+  nb -= back_capacity;  // 需要新分配的块数
+  // 如果 nb == 0，说明容量已足够。
   if (nb == 0) {
     start_ += block_size * back_capacity;
     for (; back_capacity > 0; --back_capacity) {
@@ -766,11 +770,10 @@ void deque<Tp, Allocator>::add_front_capacity(size_type n) {
       map_.emplace_front(pt);
     }
   }
-  // Else if nb <= map_.capacity() - map_.size() then we need to allocate nb buffers
+  // 否则，如果 nb <= map_.capacity() - map_.size()，说明需要分配 nb 个缓冲区
   else if (nb <= map_.capacity() - map_.size()) {
-    // we can put the new buffers into the map, but don't shift things around
-    // until all buffers are allocated.  If we throw, we don't need to fix
-    // anything up (any added buffers are undetectible)
+    // 我们可以将新的缓冲区放入 map，但在所有缓冲区分配完成前不要移动它们。
+    // 如果抛出异常，我们不需要修复任何东西（任何已添加的缓冲区都是不可检测的）
     for (; nb > 0; --nb, start_ += block_size - (map_.size() == 1)) {
       if (map_.front_spare() == 0)
         break;
@@ -778,7 +781,7 @@ void deque<Tp, Allocator>::add_front_capacity(size_type n) {
     }
     for (; nb > 0; --nb, ++back_capacity)
       map_.emplace_back(alloc_traits::allocate(a, block_size));
-    // Done allocating, reorder capacity
+    // 分配完成，重新排序容量
     start_ += back_capacity * block_size;
     for (; back_capacity > 0; --back_capacity) {
       pointer pt = map_.back();
@@ -786,7 +789,7 @@ void deque<Tp, Allocator>::add_front_capacity(size_type n) {
       map_.emplace_front(pt);
     }
   }
-  // Else need to allocate nb buffers, *and* we need to reallocate map_.
+  // 否则，需要分配 nb 个缓冲区，并且需要重新分配 map_。
   else {
     size_type ds = (nb + back_capacity) * block_size - map_.empty();
     split_buffer<pointer, pointer_allocator&> buf(
@@ -817,11 +820,11 @@ template <class Tp, class Allocator>
 void deque<Tp, Allocator>::add_back_capacity(size_type n) {
   allocator_type& a = alloc();
   size_type nb = recommend_blocks(n + map_.empty());
-  // Number of unused blocks at front:
+  // 计算前端未使用的块数：
   size_type front_capacity = front_spare() / block_size;
-  front_capacity = std::min(front_capacity, nb);  // don't take more than you need
-  nb -= front_capacity;  // number of blocks need to allocate
-  // If nb == 0, then we have sufficient capacity.
+  front_capacity = std::min(front_capacity, nb);  // 不要拿取超过所需的块
+  nb -= front_capacity;  // 需要新分配的块数
+  // 如果 nb == 0，说明容量已足够。
   if (nb == 0) {
     start_ -= block_size * front_capacity;
     for (; front_capacity > 0; --front_capacity) {
@@ -830,11 +833,10 @@ void deque<Tp, Allocator>::add_back_capacity(size_type n) {
       map_.emplace_back(pt);
     }
   }
-  // Else if nb <= map_.capacity() - map_.size() then we need to allocate nb buffers
+  // 否则，如果 nb <= map_.capacity() - map_.size()，说明需要分配 nb 个缓冲区
   else if (nb <= map_.capacity() - map_.size()) {
-    // we can put the new buffers into the map, but don't shift things around
-    // until all buffers are allocated.  If we throw, we don't need to fix
-    // anything up (any added buffers are undetectible)
+    // 我们可以将新的缓冲区放入 map，但在所有缓冲区分配完成前不要移动它们。
+    // 如果抛出异常，我们不需要修复任何东西（任何已添加的缓冲区都是不可检测的）
     for (; nb > 0; --nb) {
       if (map_.back_spare() == 0)
         break;
@@ -843,7 +845,7 @@ void deque<Tp, Allocator>::add_back_capacity(size_type n) {
     for (; nb > 0; --nb, ++front_capacity, start_ += block_size - (map_.size() == 1)) {
       map_.emplace_front(alloc_traits::allocate(a, block_size));
     }
-    // Done allocating, reorder capacity
+    // 分配完成，重新排序容量
     start_ -= block_size * front_capacity;
     for (; front_capacity > 0; --front_capacity) {
       pointer pt = map_.front();
@@ -851,7 +853,7 @@ void deque<Tp, Allocator>::add_back_capacity(size_type n) {
       map_.emplace_back(pt);
     }
   }
-  // Else need to allocate nb buffers, *and* we need to reallocate map_.
+  // 否则，需要分配 nb 个缓冲区，并且需要重新分配 map_。
   else {
     size_type ds = front_capacity * block_size;
     split_buffer<pointer, pointer_allocator&> buf(
