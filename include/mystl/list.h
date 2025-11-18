@@ -16,8 +16,7 @@ struct list_node : public list_node_base {
   T data;
 };
 
-// 非连续内存，迭代器必须自己封装逻辑
-// class T, class Ref, class Ptr：可以支持const_iterator，还可以使用智能指针，更方便
+
 template <class T, class Ref, class Ptr>
 struct list_iterator {
   using iterator = list_iterator<T, T&, T*>;
@@ -109,7 +108,7 @@ class list {
   }
 
   // 移动构造
-  list(list&& other) : _size(other._size) {
+  list(list&& other)  noexcept : _size(other._size) {
     if (other._size == 0) {
       head.next = head.prev = &head;
     } else {
