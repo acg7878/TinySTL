@@ -258,7 +258,8 @@ template <class _NodePtr>
 class hash_const_iterator {
   using _NodeTypes = hash_node_types<_NodePtr>;
   using node_pointer = _NodePtr;
-  using next_pointer = typename _NodeTypes::next_pointer;
+  using next_pointer = typename _NodeTypes::
+      next_pointer;  // 接口隔离，最终是hash_node_base，只需要知道有个next，不知道还有别的变量
 
   next_pointer node_;
 
@@ -1119,7 +1120,7 @@ class hash_table {
     node_holder h = construct_node(std::move(x));
     std::pair<iterator, bool> r = node_insert_unique(h.get());
     if (r.second) {
-      h.release(); // unique_str的release
+      h.release();  // unique_str的release
     }
     return r;
   }
