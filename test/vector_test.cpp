@@ -68,7 +68,7 @@ TEST(VectorTest, PushBackAndCapacity) {
 
   size_t old_capacity = v.capacity();
   for (size_t i = 0; i < old_capacity; ++i) {
-    v.push_back(i + 2);
+    v.push_back(static_cast<int>(i + 2));
   }
   EXPECT_EQ(v.size(), old_capacity + 1);
   EXPECT_GT(v.capacity(), old_capacity); // 容量应该增长了
